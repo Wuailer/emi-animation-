@@ -1,0 +1,47 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>San Valentin - EMI</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <main>
+    <section id="intro" class="screen active" aria-live="polite">
+      <div class="intro-card" role="button" tabindex="0" aria-label="Iniciar animacion de San Valentin">
+        <h1>DAR CLICK</h1>
+        <p>Empieza la sorpresa ✨</p>
+        <div class="finger" aria-hidden="true">
+          <div class="finger-tip"></div>
+          <span class="tap-ring ring-1"></span>
+          <span class="tap-ring ring-2"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="space-scene" class="screen" aria-live="polite">
+      <div class="stars" aria-hidden="true"></div>
+      <div id="flowers-container" class="flowers-container" aria-hidden="true"></div>
+      <div class="scene-center">
+        <div class="orbit-wrapper">
+          <div id="orbit" class="orbit" aria-label="Orbita con frases de amor"></div>
+        </div>
+        <div class="saturn" aria-label="Planeta Saturno"></div>
+      </div>
+      <p id="phrase-display" class="phrase-display">Eres mi paz en cada universo 🌌</p>
+    </section>
+
+    <section id="final" class="screen" aria-live="assertive">
+      <div class="final-message">
+        <img src="./assets/cover.jpg" alt="Personaje tierno con ramo de flores" class="final-image" onerror="this.src='./assets/cover.jpg';" />
+        <p>te amo muchisisimooo</p>
+        <h2>EMI💖💘</h2>
+        <a class="direct-link" href="./animacion.html" target="_blank" rel="noopener noreferrer">Abrir link directo</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="./assets/script.js"></script>
+</body>
+</html>

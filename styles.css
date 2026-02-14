@@ -1,0 +1,162 @@
+const intro = document.getElementById('intro');
+const introCard = document.querySelector('.intro-card');
+const spaceScene = document.getElementById('space-scene');
+const finalScene = document.getElementById('final');
+const orbit = document.getElementById('orbit');
+const phraseDisplay = document.getElementById('phrase-display');
+const liteMode = window.__LITE__ === true || new URLSearchParams(window.location.search).get('lite') === '1';
+
+const imageVersion = Date.now();
+const guaranteedImage = './assets/cover.jpg';
+const fallImageSlides = [
+  { src: guaranteedImage, alt: 'Imagen de respaldo' },
+  { src: './images/snoopy-1.jpg', alt: 'Snoopy besando' },
+  { src: './images/snoopy-2.jpg', alt: 'Snoopy con corazones' },
+  { src: './images/snoopy-3.jpg', alt: 'Snoopy y Woodstock' },
+  { src: './images/snoopy-4.jpg', alt: 'Snoopy cupido' },
+  { src: './images/snoopy-5.jpg', alt: 'Personaje tierno con ramo de flores' }
+];
+
+const frases = [
+  'Eres mi planeta favorito, EMI',
+  'Contigo todo brilla mas',
+  'Mi corazon siempre orbita hacia ti',
+  'Eres mi paz en cada universo',
+  'Tu sonrisa es mi constelacion favorita',
+  'Te elegiria en cualquier galaxia'
+];
+
+let heartsPopped = 0;
+let flowerInterval;
+
+function showScreen(screen) {
+  [intro, spaceScene, finalScene].forEach((item) => item.classList.remove('active'));
+  screen.classList.add('active');
+}
+
+function createOrbitButtons() {
+  const total = frases.length;
+  const radius = 42;
+  orbit.innerHTML = '';
+  heartsPopped = 0;
+
+  frases.forEach((frase, index) => {
+    const button = document.createElement('button');
+    button.className = 'heart-btn';
+    button.type = 'button';
+    button.textContent = '\uD83D\uDC96';
+    button.setAttribute('aria-label', `Mostrar frase ${index + 1}`);
+
+    const angle = (index / total) * Math.PI * 2;
+    const x = 50 + radius * Math.cos(angle);
+    const y = 50 + radius * Math.sin(angle);
+    button.style.left = `calc(${x}% - 36px)`;
+    button.style.top = `calc(${y}% - 36px)`;
+
+    button.addEventListener('click', () => {
+      if (button.classList.contains('popped')) {
+        return;
+      }
+      button.classList.add('popped');
+      phraseDisplay.textContent = frase;
+      heartsPopped += 1;
+      if (heartsPopped >= total) {
+        setTimeout(() => showScreen(finalScene), 900);
+      }
+    });
+
+    orbit.appendChild(button);
+  });
+}
+
+function createFallingImage() {
+  const fallingImage = document.createElement('img');
+  const randomSlide = fallImageSlides[Math.floor(Math.random() * fallImageSlides.length)];
+
+  fallingImage.className = 'falling-image';
+  fallingImage.src = `${randomSlide.src}?v=${imageVersion}`;
+  fallingImage.alt = randomSlide.alt;
+  fallingImage.loading = 'lazy';
+  fallingImage.decoding = 'async';
+  fallingImage.onerror = () => {
+    fallingImage.src = guaranteedImage;
+  };
+
+  const leftPosition = Math.random() * 100;
+  const duration = liteMode ? 10 + Math.random() * 6 : 8 + Math.random() * 5;
+  const delay = Math.random() * 0.5;
+  const size = liteMode ? 36 + Math.random() * 20 : 44 + Math.random() * 36;
+
+  fallingImage.style.left = `${leftPosition}%`;
+  fallingImage.style.animationDuration = `${duration}s`;
+  fallingImage.style.animationDelay = `${delay}s`;
+  fallingImage.style.width = `${size}px`;
+  fallingImage.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+  const container = document.getElementById('flowers-container');
+  if (container) {
+    container.appendChild(fallingImage);
+    setTimeout(() => {
+      fallingImage.remove();
+    }, (duration + delay) * 1000);
+  }
+}
+
+function createFlowerEmoji() {
+  const flowers = ['\uD83C\uDF39', '\uD83C\uDF38', '\uD83C\uDF3A', '\uD83D\uDC90', '\uD83C\uDF3B', '\uD83C\uDF37'];
+  const flower = document.createElement('div');
+  const leftPosition = Math.random() * 100;
+  const duration = liteMode ? 10 + Math.random() * 6 : 8 + Math.random() * 5;
+  const delay = Math.random() * 0.5;
+
+  flower.className = 'flower-emoji';
+  flower.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+  flower.style.left = `${leftPosition}%`;
+  flower.style.animationDuration = `${duration}s`;
+  flower.style.animationDelay = `${delay}s`;
+  flower.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+  const container = document.getElementById('flowers-container');
+  if (container) {
+    container.appendChild(flower);
+    setTimeout(() => {
+      flower.remove();
+    }, (duration + delay) * 1000);
+  }
+}
+
+function startExperience() {
+  showScreen(spaceScene);
+}
+
+introCard.addEventListener('click', startExperience);
+introCard.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    startExperience();
+  }
+});
+
+createOrbitButtons();
+
+const observer = new MutationObserver(() => {
+  if (spaceScene.classList.contains('active')) {
+    if (!flowerInterval) {
+      flowerInterval = setInterval(() => {
+        if (!liteMode || Math.random() < 0.55) {
+          createFallingImage();
+        }
+        const flowerChance = liteMode ? 0.12 : 0.35;
+        if (Math.random() < flowerChance) {
+          createFlowerEmoji();
+        }
+      }, liteMode ? 2000 : 1200);
+      createFallingImage();
+    }
+  } else if (flowerInterval) {
+    clearInterval(flowerInterval);
+    flowerInterval = null;
+  }
+});
+
+observer.observe(spaceScene, { attributes: true, attributeFilter: ['class'] });
