@@ -1,50 +1,150 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>San Valentin - EMI</title>
-  <link rel="stylesheet" href="./styles.css" />
-</head>
-<body>
-  <main>
-    <section id="intro" class="screen active" aria-live="polite">
-      <div class="intro-card" role="button" tabindex="0" aria-label="Iniciar animacion de San Valentin">
-        <h1>DAR CLICK</h1>
-        <p>Empieza la sorpresa ✨</p>
-        <div class="finger" aria-hidden="true">
-          <div class="finger-tip"></div>
-          <span class="tap-ring ring-1"></span>
-          <span class="tap-ring ring-2"></span>
-        </div>
-      </div>
-    </section>
+const intro = document.getElementById('intro');
+const introCard = document.querySelector('.intro-card');
+const spaceScene = document.getElementById('space-scene');
+const finalScene = document.getElementById('final');
+const orbit = document.getElementById('orbit');
+const phraseDisplay = document.getElementById('phrase-display');
 
-    <section id="space-scene" class="screen" aria-live="polite">
-      <div class="stars" aria-hidden="true"></div>
-      <div id="flowers-container" class="flowers-container" aria-hidden="true"></div>
-      <div class="scene-center">
-        <div class="orbit-wrapper">
-          <div id="orbit" class="orbit" aria-label="Orbita con frases de amor"></div>
-        </div>
-        <div class="saturn" aria-label="Planeta Saturno"></div>
-      </div>
-      <p id="phrase-display" class="phrase-display">Eres mi paz en cada universo 🌌</p>
-    </section>
+const guaranteedImage = './cover.jpg';
+const fallImageSlides = [
+  { src: guaranteedImage, alt: 'Imagen de respaldo' }
+];
 
-    <section id="final" class="screen" aria-live="assertive">
-      <div class="final-message">
-        <img src="./cover.jpg" alt="Personaje tierno con ramo de flores" class="final-image" onerror="this.style.display='none';" />
-        <p>te amo muchisisimooo</p>
-        <h2>EMI💖💘</h2>
-        <a class="direct-link" href="./index.html" target="_blank" rel="noopener noreferrer">Abrir link directo</a>
-      </div>
-    </section>
-  </main>
+const frases = [
+  'Eres mi planeta favorito, EMI',
+  'Contigo todo brilla mas',
+  'Mi corazon siempre orbita hacia ti',
+  'Eres mi paz en cada universo',
+  'Tu sonrisa es mi constelacion favorita',
+  'Te elegiria en cualquier galaxia'
+];
 
-  <script src="./script.js"></script>
-</body>
-</html>
+let heartsPopped = 0;
+let fallInterval;
+
+function showScreen(screen) {
+  [intro, spaceScene, finalScene].forEach((item) => item.classList.remove('active'));
+  screen.classList.add('active');
+}
+
+function createOrbitButtons() {
+  const total = frases.length;
+  const radius = 42;
+  orbit.innerHTML = '';
+  heartsPopped = 0;
+
+  frases.forEach((frase, index) => {
+    const button = document.createElement('button');
+    button.className = 'heart-btn';
+    button.type = 'button';
+    button.textContent = '💖';
+    button.setAttribute('aria-label', `Mostrar frase ${index + 1}`);
+
+    const angle = (index / total) * Math.PI * 2;
+    const x = 50 + radius * Math.cos(angle);
+    const y = 50 + radius * Math.sin(angle);
+    button.style.left = `calc(${x}% - 36px)`;
+    button.style.top = `calc(${y}% - 36px)`;
+
+    button.addEventListener('click', () => {
+      if (button.classList.contains('popped')) return;
+      button.classList.add('popped');
+      phraseDisplay.textContent = frase;
+      heartsPopped += 1;
+
+      if (heartsPopped >= total) {
+        setTimeout(() => showScreen(finalScene), 900);
+      }
+    });
+
+    orbit.appendChild(button);
+  });
+}
+
+function createFallingImage() {
+  const img = document.createElement('img');
+  const slide = fallImageSlides[Math.floor(Math.random() * fallImageSlides.length)];
+  img.className = 'falling-image';
+  img.src = slide.src;
+  img.alt = slide.alt;
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.onerror = () => {
+    img.style.display = 'none';
+  };
+
+  const leftPosition = Math.random() * 100;
+  const duration = 9 + Math.random() * 4;
+  const delay = Math.random() * 0.3;
+  const size = 40 + Math.random() * 20;
+
+  img.style.left = `${leftPosition}%`;
+  img.style.animationDuration = `${duration}s`;
+  img.style.animationDelay = `${delay}s`;
+  img.style.width = `${size}px`;
+  img.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+  const container = document.getElementById('flowers-container');
+  if (container) {
+    container.appendChild(img);
+    setTimeout(() => img.remove(), (duration + delay) * 1000);
+  }
+}
+
+function createFlowerEmoji() {
+  const flowers = ['🌹', '🌸', '🌺', '💐', '🌻', '🌷'];
+  const flower = document.createElement('div');
+  flower.className = 'flower';
+  flower.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+
+  const left = Math.random() * 100;
+  const duration = 8 + Math.random() * 4;
+  const delay = Math.random() * 0.3;
+
+  flower.style.left = `${left}%`;
+  flower.style.animationDuration = `${duration}s`;
+  flower.style.animationDelay = `${delay}s`;
+  flower.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+  const container = document.getElementById('flowers-container');
+  if (container) {
+    container.appendChild(flower);
+    setTimeout(() => flower.remove(), (duration + delay) * 1000);
+  }
+}
+
+function startExperience() {
+  showScreen(spaceScene);
+}
+
+introCard.addEventListener('click', startExperience);
+introCard.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    startExperience();
+  }
+});
+
+createOrbitButtons();
+
+const observer = new MutationObserver(() => {
+  if (spaceScene.classList.contains('active')) {
+    if (!fallInterval) {
+      fallInterval = setInterval(() => {
+        createFallingImage();
+        if (Math.random() < 0.35) createFlowerEmoji();
+      }, 1300);
+      createFallingImage();
+    }
+  } else if (fallInterval) {
+    clearInterval(fallInterval);
+    fallInterval = null;
+  }
+});
+
+observer.observe(spaceScene, { attributes: true, attributeFilter: ['class'] });
+
+
 
 
 
